@@ -41,9 +41,9 @@ const val METHOD_CHANNEL_NAME = "com.tfliteflutter.tflite_flutter_helper:methods
 
 /** TfliteFlutterHelperPlugin */
 class TfliteFlutterHelperPlugin : FlutterPlugin,
-		MethodCallHandler,
-		PluginRegistry.RequestPermissionsResultListener,
-		ActivityAware {
+	MethodCallHandler,
+	PluginRegistry.RequestPermissionsResultListener,
+	ActivityAware {
 
 
 	private val LOG_TAG = "TfLiteFlutterHelperPlugin"
@@ -122,7 +122,7 @@ class TfliteFlutterHelperPlugin : FlutterPlugin,
 
 		val localContext = pluginContext
 		permissionToRecordAudio = localContext != null && ContextCompat.checkSelfPermission(localContext,
-				Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+			Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
 		return permissionToRecordAudio
 
 	}
@@ -136,18 +136,17 @@ class TfliteFlutterHelperPlugin : FlutterPlugin,
 		if (!hasRecordPermission() && localActivity != null) {
 			debugLog("requesting RECORD_AUDIO permission")
 			ActivityCompat.requestPermissions(localActivity,
-					arrayOf(Manifest.permission.RECORD_AUDIO), AUDIO_RECORD_PERMISSION_CODE)
+				arrayOf(Manifest.permission.RECORD_AUDIO), AUDIO_RECORD_PERMISSION_CODE)
 		}
 	}
 
-	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>?,
-											grantResults: IntArray?): Boolean {
+	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
+											grantResults: IntArray): Boolean {
 		when (requestCode) {
 			AUDIO_RECORD_PERMISSION_CODE -> {
-				if (grantResults != null) {
-					permissionToRecordAudio = grantResults.isNotEmpty() &&
-							grantResults[0] == PackageManager.PERMISSION_GRANTED
-				}
+				permissionToRecordAudio = grantResults.isNotEmpty() &&
+						grantResults[0] == PackageManager.PERMISSION_GRANTED
+
 				completeInitializeRecorder()
 				return true
 			}
@@ -169,7 +168,7 @@ class TfliteFlutterHelperPlugin : FlutterPlugin,
 			return
 		}
 		permissionToRecordAudio = ContextCompat.checkSelfPermission(localContext,
-				Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+			Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
 		if (!permissionToRecordAudio) {
 			requestRecordPermission()
 		} else {
