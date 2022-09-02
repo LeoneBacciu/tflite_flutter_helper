@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:image/image.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/src/image/color_space_type.dart';
@@ -80,5 +81,50 @@ class ImageConversions {
         throw StateError(
             "${buffer.getDataType()} is unsupported with TensorBuffer.");
     }
+  }
+
+  static List<int>? convertImageToPng(CameraImage image) {
+    Image img;
+    if (image.format.group == ImageFormatGroup.yuv420) {
+      img = convertYUV420(image);
+    } else if (image.format.group == ImageFormatGroup.bgra8888) {
+      img = convertBGRA8888(image);
+    } else {
+      return null;
+    }
+
+    PngEncoder pngEncoder = new PngEncoder();
+
+    List<int> png = pngEncoder.encodeImage(img);
+    return png;
+  }
+
+  static Image convertBGRA8888(CameraImage image) {
+    return Image.fromBytes(
+      image.width,
+      image.height,
+      image.planes[0].bytes,
+      format: Format.bgra,
+    );
+  }
+
+  static Image convertYUV420(CameraImage image) {
+    var img = Image(image.width, image.height);
+
+    Plane plane = image.planes[0];
+    const int shift = (0xFF << 24);
+
+    for (int x = 0; x < image.width; x++) {
+      for (int planeOffset = 0;
+          planeOffset < image.height * image.width;
+          planeOffset += image.width) {
+        final pixelColor = plane.bytes[planeOffset + x];
+        var newVal =
+            shift | (pixelColor << 16) | (pixelColor << 8) | pixelColor;
+        img.data[planeOffset + x] = newVal;
+      }
+    }
+
+    return img;
   }
 }
